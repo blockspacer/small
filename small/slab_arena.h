@@ -87,10 +87,24 @@ struct slab_arena {
 	/** A preallocated arena of size = prealloc. */
 	void *arena;
 	/**
+	 * A preallocated block for truncation tuples of size
+	 * trunc_alloc.
+	 */
+	void *trunc_reserve;
+	/**
 	 * How much memory is preallocated during initialization
 	 * of slab_arena.
 	 */
 	size_t prealloc;
+	/**
+	 * How much memory is reserved for truncation tuples.
+	 */
+	size_t trunc_alloc;
+	/**
+	* True if we are inserting truncation tuple.
+	* Otherwise false.
+	*/
+	bool truncating;
 	/**
 	 * How much memory in the arena has
 	 * already been initialized for slabs.

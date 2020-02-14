@@ -210,6 +210,18 @@ slab_arena_create(struct slab_arena *arena, struct quota *quota,
 
 	madvise_checked(arena->arena, arena->prealloc, arena->flags);
 
+	arena->truncating = false;
+	arena->trunc_alloc = small_align(arena->trunc_alloc, arena->slab_size);
+	if (arena->trunc_alloc) {
+		arena->trunc_reserve = mmap_checked(arena->trunc_alloc,
+						    arena->slab_size,
+						    arena->flags);
+	} else {
+		arena->trunc_reserve = NULL;
+	}
+
+	madvise_checked(arena->trunc_reserve, arena->trunc_alloc, arena->flags);
+
 	return arena->prealloc && !arena->arena ? -1 : 0;
 }
 
@@ -240,8 +252,18 @@ slab_map(struct slab_arena *arena)
 		return ptr;
 	}
 
-	if (quota_use(arena->quota, arena->slab_size) < 0)
+	if (quota_use(arena->quota, arena->slab_size) < 0) {
+		if (arena->truncating) {
+			ptr = arena->trunc_reserve;
+			if (arena->trunc_alloc) {
+				pm_atomic_fetch_sub(&arena->trunc_alloc, arena->slab_size);
+				pm_atomic_fetch_add(&arena->used, arena->slab_size);
+				VALGRIND_MAKE_MEM_UNDEFINED(ptr, arena->slab_size);
+			}
+			return ptr;
+		}
 		return NULL;
+	}
 
 	/** Need to allocate a new slab. */
 	size_t used = pm_atomic_fetch_add(&arena->used, arena->slab_size);

@@ -187,6 +187,8 @@ mempool_alloc(struct mempool *pool)
 			    slab_get_with_order(pool->cache,
 						pool->slab_order))) {
 			mslab_create(slab, pool);
+			if (pool->cache->arena->truncating)
+				goto end;
 			slab_list_add(&pool->slabs, &slab->slab, next_in_list);
 		} else if (! rlist_empty(&pool->cold_slabs)) {
 			slab = rlist_shift_entry(&pool->cold_slabs, struct mslab,
@@ -199,6 +201,7 @@ mempool_alloc(struct mempool *pool)
 		slab->in_hot_slabs = true;
 		pool->first_hot_slab = slab;
 	}
+end:
 	pool->slabs.stats.used += pool->objsize;
 	void *ptr = mslab_alloc(pool, slab);
 	assert(ptr != NULL);

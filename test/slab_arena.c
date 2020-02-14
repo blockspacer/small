@@ -97,6 +97,7 @@ slab_test_madvise(void)
 	 * preallocated area has been madvised.
 	 */
 	quota_init(&quota, 2000000);
+	arena.trunc_alloc = 0;
 	slab_arena_create(&arena, &quota, 3000000, 1,
 			  SLAB_ARENA_PRIVATE | SLAB_ARENA_DONTDUMP);
 
@@ -119,6 +120,7 @@ slab_test_madvise(void)
 	 * A new slab for dynamic allocation.
 	 */
 	quota_init(&quota, 2000000);
+	arena.trunc_alloc = 0;
 	slab_arena_create(&arena, &quota, 0, 0x10000,
 			  SLAB_ARENA_PRIVATE | SLAB_ARENA_DONTDUMP);
 
@@ -149,11 +151,13 @@ int main()
 	struct slab_arena arena;
 
 	quota_init(&quota, 0);
+	arena.trunc_alloc = 0;
 	slab_arena_create(&arena, &quota, 0, 0, MAP_PRIVATE);
 	slab_arena_print(&arena);
 	slab_arena_destroy(&arena);
 
 	quota_init(&quota, SLAB_MIN_SIZE);
+	arena.trunc_alloc = 0;
 	slab_arena_create(&arena, &quota, 1, 1, MAP_PRIVATE);
 	slab_arena_print(&arena);
 	void *ptr = slab_map(&arena);
@@ -167,6 +171,7 @@ int main()
 	slab_arena_destroy(&arena);
 
 	quota_init(&quota, 2000000);
+	arena.trunc_alloc = 0;
 	slab_arena_create(&arena, &quota, 3000000, 1, MAP_PRIVATE);
 	slab_arena_print(&arena);
 	slab_arena_destroy(&arena);

@@ -30,6 +30,7 @@ test_basic()
 	struct slab_arena arena;
 	struct lsregion allocator;
 	quota_init(&quota, 4 * SLAB_MIN_SIZE);
+	arena.trunc_alloc = 0;
 	is(slab_arena_create(&arena, &quota, 0, 1024, MAP_PRIVATE), 0, "init");
 	lsregion_create(&allocator, &arena);
 
@@ -182,6 +183,7 @@ test_many_allocs_one_slab()
 	struct slab_arena arena;
 	struct lsregion allocator;
 	quota_init(&quota, 4 * SLAB_MIN_SIZE);
+	arena.trunc_alloc = 0;
 	is(slab_arena_create(&arena, &quota, 0, 0, MAP_PRIVATE), 0, "init");
 	lsregion_create(&allocator, &arena);
 
@@ -235,6 +237,7 @@ test_many_allocs_many_slabs()
 	struct slab_arena arena;
 	struct lsregion allocator;
 	quota_init(&quota, 4 * SLAB_MIN_SIZE);
+	arena.trunc_alloc = 0;
 	is(slab_arena_create(&arena, &quota, 0, 0, MAP_PRIVATE), 0, "init");
 	lsregion_create(&allocator, &arena);
 
@@ -314,6 +317,7 @@ test_big_data_small_slabs()
 	struct slab_arena arena;
 	struct lsregion allocator;
 	quota_init(&quota, 16 * SLAB_MIN_SIZE);
+	arena.trunc_alloc = 0;
 	is(slab_arena_create(&arena, &quota, 0, 0, MAP_PRIVATE), 0, "init");
 	lsregion_create(&allocator, &arena);
 

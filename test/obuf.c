@@ -71,6 +71,8 @@ int main()
 
 	quota_init(&quota, UINT_MAX);
 
+	arena.trunc_alloc = 0;
+
 	slab_arena_create(&arena, &quota, 0, 4000000,
 			  MAP_PRIVATE);
 	slab_cache_create(&cache, &arena);
